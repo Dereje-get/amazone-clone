@@ -17,7 +17,7 @@ import { useNavigate } from "react-router-dom";
 import { Type } from "../../Utility/action.type";
 
 function Payment() {
-  const [{ user, basket}, dispatch] = useContext(DataContext);
+  const [{ user, basket }, dispatch] = useContext(DataContext);
   const totalItem = basket?.reduce((amount, item) => {
     return item.amount + amount;
   }, 0);
@@ -27,13 +27,13 @@ function Payment() {
   }, 0);
 
   const [cardError, setCardError] = useState(null);
-  const [processing, setProcessing] = useState(false)
+  const [processing, setProcessing] = useState(false);
   const stripe = useStripe();
   const element = useElements();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
-    console.log(e);
+    // console.log(e);
     e?.error?.message ? setCardError(e?.error?.message) : setCardError("");
   };
   const handlePayment = async (e) => {
@@ -46,7 +46,7 @@ function Payment() {
         method: "POST",
         url: `/payment/create?total=${total * 100}`,
       });
-      console.log(response.data);
+      // console.log(response.data);
       const clientsecret = response.data?.clientSecret;
 
       // step 2. client side(react side confirmation)
@@ -55,7 +55,7 @@ function Payment() {
           card: element.getElement(CardElement),
         },
       });
-      console.log(paymentIntent);
+      // console.log(paymentIntent);
       // step 3. after the confirmation...> order firestore database save, clear basket
       await db
         .collection("users")
@@ -74,9 +74,8 @@ function Payment() {
       navigate("/order", { state: { msg: "you have placed new order" } });
     } catch (error) {
       console.log(error);
-      setProcessing(false)
+      setProcessing(false);
     }
-
   };
 
   return (
@@ -127,15 +126,14 @@ function Payment() {
                     </span>
                   </div>
                   <button type="submit">
-                    {
-                      processing? (
-                        <div className={classes.loading}>
-                          <ClipLoader color="gray" size={12} />
-                          <p>Please wait...</p>
-                        </div>
-                      ):"Pay Now"
-                    }
-                    
+                    {processing ? (
+                      <div className={classes.loading}>
+                        <ClipLoader color="gray" size={12} />
+                        <p>Please wait...</p>
+                      </div>
+                    ) : (
+                      "Pay Now"
+                    )}
                   </button>
                 </div>
               </form>
